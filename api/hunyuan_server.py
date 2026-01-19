@@ -18,7 +18,7 @@ for path in (HY3DSHAPE_ROOT, PROJECT_ROOT):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-HUNYUAN_VISIBLE_DEVICES = os.environ.get("HUNYUAN_CUDA_VISIBLE_DEVICES", "4")
+HUNYUAN_VISIBLE_DEVICES = os.environ.get("HUNYUAN_CUDA_VISIBLE_DEVICES", "1")
 os.environ.setdefault("CUDA_DEVICE_ORDER", "PCI_BUS_ID")
 os.environ.setdefault("CUDA_VISIBLE_DEVICES", HUNYUAN_VISIBLE_DEVICES)
 
