@@ -32,7 +32,7 @@
 
 | Wechat Group                                     | Xiaohongshu                                           | X                                           | Discord                                           |
 |--------------------------------------------------|-------------------------------------------------------|---------------------------------------------|---------------------------------------------------|
-| <img src="assets/qrcode/wechat.png"  height=140> | <img src="assets/qrcode/xiaohongshu.png"  height=140> | <img src="assets/qrcode/x.png"  height=140> | <img src="assets/qrcode/discord.png"  height=140> |        
+| <img src="assets/qrcode/wechat.png"  height=140> | <img src="assets/qrcode/xiaohongshu.png"  height=140> | <img src="assets/qrcode/x.png"  height=140> | <img src="assets/qrcode/discord.png"  height=140> |
 
 ## 🤗 Community Contribution Leaderboard
 1. By [@visualbruno](https://github.com/visualbruno)
@@ -82,7 +82,7 @@ It takes 10 GB VRAM for shape generation, 21GB for texture generation and 29GB f
 
 
 | Model                      | Description                 | Date       | Size | Huggingface                                                                               |
-|----------------------------|-----------------------------|------------|------|-------------------------------------------------------------------------------------------| 
+|----------------------------|-----------------------------|------------|------|-------------------------------------------------------------------------------------------|
 | Hunyuan3D-Shape-v2-1         | Image to Shape Model        | 2025-06-14 | 3.3B | [Download](https://huggingface.co/tencent/Hunyuan3D-2.1/tree/main/hunyuan3d-dit-v2-1)         |
 | Hunyuan3D-Paint-v2-1       | Texture Generation Model    | 2025-06-14 | 2B | [Download](https://huggingface.co/tencent/Hunyuan3D-2.1/tree/main/hunyuan3d-paintpbr-v2-1)       |
 
@@ -94,13 +94,13 @@ Hunyuan3D 2.1 supports Macos, Windows, Linux. You may follow the next steps to u
 ### Install Requirements
 We test our model with Python 3.10 and PyTorch 2.5.1+cu124.
 ```bash
-pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124
-pip install -r requirements.txt
+uv sync
 
 cd hy3dpaint/custom_rasterizer
-pip install -e .
+uv pip install -e . --no-build-isolation
 cd ../..
 cd hy3dpaint/DifferentiableRenderer
+source .venv/bin/activate
 bash compile_mesh_painter.sh
 cd ../..
 
