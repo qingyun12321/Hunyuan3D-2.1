@@ -161,6 +161,8 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 gradio_cache/
+cache/
+save_dir/
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
@@ -174,12 +176,15 @@ gradio_cache/
 hy3dshape/tools/cmd*.sh
 hy3dshape/output_folder/
 demo.glb
+out.glb
+res.glb
 demo_textured.glb
 demo_textured.jpg
 demo_textured.mtl
 demo_textured_metallic.jpg
 demo_textured_roughness.jpg
 demo_untextured.glb
+generated_model_*.glb
+async_generated_model_*.glb
 white_mesh_remesh.obj
 hy3dpaint/ckpt/
-
