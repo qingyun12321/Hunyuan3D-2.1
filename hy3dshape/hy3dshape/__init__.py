@@ -43,6 +43,44 @@ def _setup_cache_env() -> None:
 
 _setup_cache_env()
 
-from .pipelines import Hunyuan3DDiTPipeline, Hunyuan3DDiTFlowMatchingPipeline
-from .postprocessors import FaceReducer, FloaterRemover, DegenerateFaceRemover, MeshSimplifier
-from .preprocessors import ImageProcessorV2, IMAGE_PROCESSORS, DEFAULT_IMAGEPROCESSOR
+__all__ = [
+    "Hunyuan3DDiTPipeline",
+    "Hunyuan3DDiTFlowMatchingPipeline",
+    "FaceReducer",
+    "FloaterRemover",
+    "DegenerateFaceRemover",
+    "MeshSimplifier",
+    "ImageProcessorV2",
+    "IMAGE_PROCESSORS",
+    "DEFAULT_IMAGEPROCESSOR",
+]
+
+
+def __getattr__(name):
+    if name in {"Hunyuan3DDiTPipeline", "Hunyuan3DDiTFlowMatchingPipeline"}:
+        from .pipelines import Hunyuan3DDiTFlowMatchingPipeline, Hunyuan3DDiTPipeline
+        return {
+            "Hunyuan3DDiTPipeline": Hunyuan3DDiTPipeline,
+            "Hunyuan3DDiTFlowMatchingPipeline": Hunyuan3DDiTFlowMatchingPipeline,
+        }[name]
+    if name in {"FaceReducer", "FloaterRemover", "DegenerateFaceRemover", "MeshSimplifier"}:
+        from .postprocessors import (
+            DegenerateFaceRemover,
+            FaceReducer,
+            FloaterRemover,
+            MeshSimplifier,
+        )
+        return {
+            "FaceReducer": FaceReducer,
+            "FloaterRemover": FloaterRemover,
+            "DegenerateFaceRemover": DegenerateFaceRemover,
+            "MeshSimplifier": MeshSimplifier,
+        }[name]
+    if name in {"ImageProcessorV2", "IMAGE_PROCESSORS", "DEFAULT_IMAGEPROCESSOR"}:
+        from .preprocessors import DEFAULT_IMAGEPROCESSOR, IMAGE_PROCESSORS, ImageProcessorV2
+        return {
+            "ImageProcessorV2": ImageProcessorV2,
+            "IMAGE_PROCESSORS": IMAGE_PROCESSORS,
+            "DEFAULT_IMAGEPROCESSOR": DEFAULT_IMAGEPROCESSOR,
+        }[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

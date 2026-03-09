@@ -22,7 +22,7 @@ dependencies = [
     "omegaconf==2.3.0",
     "onnxruntime==1.16.3",
     "open3d==0.18.0",
-    "opencv-python==4.10.0.84",
+    "opencv-python-headless==4.10.0.84",
     "pandas==2.2.2",
     "psutil==6.0.0",
     "pybind11==2.13.4",

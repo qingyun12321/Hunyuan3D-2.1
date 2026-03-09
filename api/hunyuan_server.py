@@ -30,7 +30,7 @@ HUNYUAN_ROOT = PROJECT_ROOT
 MODEL_PATH = os.environ.get("HY3D_MODEL_PATH", "tencent/Hunyuan3D-2.1")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DTYPE = torch.float16
-LOAD_ON_STARTUP = os.environ.get("HUNYUAN_LOAD_ON_STARTUP", "1") == "1"
+LOAD_ON_STARTUP = os.environ.get("HUNYUAN_LOAD_ON_STARTUP", "0") == "1"
 STAGED_EXPORT = os.environ.get("HUNYUAN_STAGED_EXPORT", "1") == "1"
 IDLE_OFFLOAD_SECS = float(os.environ.get("HUNYUAN_IDLE_OFFLOAD_SECS", "60"))
 KEEP_ON_GPU_RAW = os.environ.get("HUNYUAN_KEEP_ON_GPU", "model,conditioner")
