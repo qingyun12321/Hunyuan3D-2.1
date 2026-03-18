@@ -1,4 +1,5 @@
 import base64
+import gc
 import io
 import os
 import sys
@@ -14,7 +15,8 @@ import uvicorn
 API_ROOT = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(API_ROOT, ".."))
 HY3DSHAPE_ROOT = os.path.join(PROJECT_ROOT, "hy3dshape")
-for path in (HY3DSHAPE_ROOT, PROJECT_ROOT):
+WORKSPACE_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, ".."))
+for path in (HY3DSHAPE_ROOT, PROJECT_ROOT, WORKSPACE_ROOT):
     if path not in sys.path:
         sys.path.insert(0, path)
 
@@ -25,6 +27,7 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", HUNYUAN_VISIBLE_DEVICES)
 import torch
 
 from hy3dshape.pipelines import Hunyuan3DDiTFlowMatchingPipeline
+from runtime_diagnostics import format_runtime_diagnostics
 
 HUNYUAN_ROOT = PROJECT_ROOT
 MODEL_PATH = os.environ.get("HY3D_MODEL_PATH", "tencent/Hunyuan3D-2.1")
@@ -62,6 +65,17 @@ def _parse_keep_on_gpu(value: str) -> set:
 
 
 KEEP_ON_GPU = _parse_keep_on_gpu(KEEP_ON_GPU_RAW)
+
+
+def _log_runtime_diagnostics(stage: str, **extra: object) -> None:
+    print(
+        format_runtime_diagnostics(
+            f"hunyuan:{stage}",
+            torch_module=torch,
+            extra={key: value for key, value in extra.items() if value is not None},
+        ),
+        flush=True,
+    )
 
 
 def _cancel_idle_offload() -> None:
@@ -140,12 +154,36 @@ def _load_pipeline() -> None:
     global PIPELINE
     if PIPELINE is not None:
         return
+    _log_runtime_diagnostics("before_load", model_path=MODEL_PATH, device=DEVICE)
     PIPELINE = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
         MODEL_PATH,
         device=DEVICE,
         dtype=DTYPE,
     )
+    _log_runtime_diagnostics("after_load", model_path=MODEL_PATH, device=DEVICE)
     _schedule_idle_offload()
+
+
+def _offload_pipeline_now() -> None:
+    if PIPELINE is None:
+        return
+    _cancel_idle_offload()
+    _offload_pipeline_components(set())
+
+
+def _unload_pipeline_now() -> None:
+    global PIPELINE
+    if PIPELINE is None:
+        return
+    _cancel_idle_offload()
+    try:
+        PIPELINE.to("cpu")
+    except Exception:
+        pass
+    PIPELINE = None
+    gc.collect()
+    if DEVICE == "cuda":
+        torch.cuda.empty_cache()
 
 
 def _decode_base64_image(data: str) -> Image.Image:
@@ -176,6 +214,12 @@ def _mesh_to_base64(mesh) -> str:
 
 @app.on_event("startup")
 def _startup() -> None:
+    _log_runtime_diagnostics(
+        "startup",
+        model_path=MODEL_PATH,
+        device=DEVICE,
+        load_on_startup=LOAD_ON_STARTUP,
+    )
     if LOAD_ON_STARTUP:
         _load_pipeline()
 
@@ -183,6 +227,30 @@ def _startup() -> None:
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready_check():
+    return {"status": "ok"}
+
+
+@app.get("/live")
+def live_check():
+    return {"status": "ok"}
+
+
+@app.post("/memory/offload")
+def memory_offload():
+    with PIPELINE_LOCK:
+        _offload_pipeline_now()
+    return {"status": "ok", "action": "offload"}
+
+
+@app.post("/memory/unload")
+def memory_unload():
+    with PIPELINE_LOCK:
+        _unload_pipeline_now()
+    return {"status": "ok", "action": "unload"}
 
 
 @app.post("/generate", response_model=GenerateResponse)
