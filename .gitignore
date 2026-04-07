@@ -188,3 +188,4 @@ generated_model_*.glb
 async_generated_model_*.glb
 white_mesh_remesh.obj
 hy3dpaint/ckpt/
+tests
